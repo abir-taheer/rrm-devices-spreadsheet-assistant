@@ -184,309 +184,314 @@ export default function PhoneLookupResults() {
     );
   };
 
+  const numPerfect = results.confidentMatchesGroupedByWorkUnit.reduce(
+    (a, b) => a + b.matches.length,
+    0
+  );
   return (
     <div>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={
-            <IconButton>
-              <ExpandMoreOutlined />
-            </IconButton>
-          }
-        >
-          <Typography fontSize={18}>
-            Confident Matches With Exact Roster Results (
-            {results.confidentMatchesGroupedByWorkUnit.reduce(
-              (a, b) => a + b.matches.length,
-              0
-            )}
-            )
-          </Typography>
-        </AccordionSummary>
-
-        <AccordionDetails>
-          <Select
-            value={groupBy}
-            onChange={(ev) =>
-              setGroupBy(ev.target.value as "unit" | "workLocation")
+      {!!numPerfect && (
+        <Accordion>
+          <AccordionSummary
+            expandIcon={
+              <IconButton>
+                <ExpandMoreOutlined />
+              </IconButton>
             }
           >
-            <MenuItem value="workLocation">
-              Group by Roster "Work Location"
-            </MenuItem>
-            <MenuItem value="unit">Group by Devices Database "Unit"</MenuItem>
-            <MenuItem value="supervisor">Group by Roster "Supervisor"</MenuItem>
-          </Select>
-          <br />
-          <Button
-            variant="outlined"
-            style={{ margin: "20px 0" }}
-            onClick={generateGroupedCsv}
-          >
-            Save Exact Matches To Spreadsheet
-          </Button>
-          <br />
-          {groupedResults.map((group, index) => {
-            return (
-              <div key={index}>
-                <h2>{(group as any)[labelField] || "Unknown"}</h2>
-                <div
-                  style={{
-                    height: Math.min(
-                      Math.max(group.matches.length * 100, 250),
-                      600
-                    ),
-                  }}
-                >
-                  <DataGrid
-                    checkboxSelection
-                    editMode="row"
-                    getRowId={(row) => row.deviceRow}
-                    columns={columns}
-                    // Join together all of the fields because there's not really a point in keeping them separate
-                    rows={group.matches.map((a) => ({
-                      ...a.device,
-                      deviceRow: a.device.row,
-                      ...a.roster.exact[0],
-                      rosterRow: a.roster.exact[0].row,
-                    }))}
-                    rowBuffer={4}
-                    components={{
-                      Toolbar: GridToolbar,
+            <Typography fontSize={18}>
+              Confident Matches With Exact Roster Results ({numPerfect})
+            </Typography>
+          </AccordionSummary>
+
+          <AccordionDetails>
+            <Select
+              value={groupBy}
+              onChange={(ev) =>
+                setGroupBy(ev.target.value as "unit" | "workLocation")
+              }
+            >
+              <MenuItem value="workLocation">
+                Group by Roster "Work Location"
+              </MenuItem>
+              <MenuItem value="unit">Group by Devices Database "Unit"</MenuItem>
+              <MenuItem value="supervisor">
+                Group by Roster "Supervisor"
+              </MenuItem>
+            </Select>
+            <br />
+            <Button
+              variant="outlined"
+              style={{ margin: "20px 0" }}
+              onClick={generateGroupedCsv}
+            >
+              Save Exact Matches To Spreadsheet
+            </Button>
+            <br />
+            {groupedResults.map((group, index) => {
+              return (
+                <div key={index}>
+                  <h2>{(group as any)[labelField] || "Unknown"}</h2>
+                  <div
+                    style={{
+                      height: Math.min(
+                        Math.max(group.matches.length * 100, 250),
+                        600
+                      ),
                     }}
-                  />
+                  >
+                    <DataGrid
+                      checkboxSelection
+                      editMode="row"
+                      getRowId={(row) => row.deviceRow}
+                      columns={columns}
+                      // Join together all of the fields because there's not really a point in keeping them separate
+                      rows={group.matches.map((a) => ({
+                        ...a.device,
+                        deviceRow: a.device.row,
+                        ...a.roster.exact[0],
+                        rosterRow: a.roster.exact[0].row,
+                      }))}
+                      rowBuffer={4}
+                      components={{
+                        Toolbar: GridToolbar,
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={
-            <IconButton>
-              <ExpandMoreOutlined />
-            </IconButton>
-          }
-        >
-          <Typography fontSize={18}>
-            Database Matches With No Roster Results ({noRosterMatches.length})
-          </Typography>
-        </AccordionSummary>
+              );
+            })}
+          </AccordionDetails>
+        </Accordion>
+      )}
 
-        <AccordionDetails>
-          <p>Numbers with no Roster Matches</p>
-          <div
-            style={{
-              height: Math.min(
-                Math.max(noRosterMatches.length * 100, 250),
-                600
-              ),
-            }}
+      {!!noRosterMatches.length && (
+        <Accordion>
+          <AccordionSummary
+            expandIcon={
+              <IconButton>
+                <ExpandMoreOutlined />
+              </IconButton>
+            }
           >
-            <DataGrid
-              editMode="row"
-              checkboxSelection
-              getRowId={(row) => row.deviceRow}
-              columns={[
-                {
-                  field: "deviceRow",
-                  headerName: "Row in Devices Database",
-                  width: 100,
-                },
-                {
-                  field: "formattedPhone",
-                  width: 180,
-                  headerName: "Phone",
-                  filterable: true,
-                },
+            <Typography fontSize={18}>
+              Database Matches With No Roster Results ({noRosterMatches.length})
+            </Typography>
+          </AccordionSummary>
 
-                {
-                  field: "fullName",
-                  headerName: "Full Name",
-                  width: 250,
-                },
-                {
-                  field: "unit",
-                  headerName: "Work Unit",
-                  width: 350,
-                },
-                {
-                  field: "typeOfDevice",
-                  headerName: "Device Type",
-                  width: 180,
-                },
-                {
-                  field: "serviceType",
-                  headerName: "Service Type",
-                  width: 150,
-                },
-              ]}
-              // Join together all of the fields because there's not really a point in keeping them separate
-              rows={noRosterMatches.map((a) => ({
-                ...a.device,
-                deviceRow: a.device.row,
-              }))}
-              rowBuffer={4}
-              components={{
-                Toolbar: GridToolbar,
+          <AccordionDetails>
+            <p>Numbers with no Roster Matches</p>
+            <div
+              style={{
+                height: Math.min(
+                  Math.max(noRosterMatches.length * 100, 250),
+                  600
+                ),
               }}
-            />
-          </div>
-        </AccordionDetails>
-      </Accordion>
+            >
+              <DataGrid
+                editMode="row"
+                checkboxSelection
+                getRowId={(row) => row.deviceRow}
+                columns={[
+                  {
+                    field: "deviceRow",
+                    headerName: "Row in Devices Database",
+                    width: 100,
+                  },
+                  {
+                    field: "formattedPhone",
+                    width: 180,
+                    headerName: "Phone",
+                    filterable: true,
+                  },
 
-      {/*
+                  {
+                    field: "fullName",
+                    headerName: "Full Name",
+                    width: 250,
+                  },
+                  {
+                    field: "unit",
+                    headerName: "Work Unit",
+                    width: 350,
+                  },
+                  {
+                    field: "typeOfDevice",
+                    headerName: "Device Type",
+                    width: 180,
+                  },
+                  {
+                    field: "serviceType",
+                    headerName: "Service Type",
+                    width: 150,
+                  },
+                ]}
+                // Join together all of the fields because there's not really a point in keeping them separate
+                rows={noRosterMatches.map((a) => ({
+                  ...a.device,
+                  deviceRow: a.device.row,
+                }))}
+                rowBuffer={4}
+                components={{
+                  Toolbar: GridToolbar,
+                }}
+              />
+            </div>
+          </AccordionDetails>
+        </Accordion>
+      )}
 
+      {!!possibleRosterMatches.length && (
+        <Accordion>
+          <AccordionSummary
+            expandIcon={
+              <IconButton>
+                <ExpandMoreOutlined />
+              </IconButton>
+            }
+          >
+            <Typography fontSize={18}>
+              Database Matches With Ambiguous Roster Results (
+              {possibleRosterMatches.length})
+            </Typography>
+          </AccordionSummary>
 
-*/}
-
-      <Accordion>
-        <AccordionSummary
-          expandIcon={
-            <IconButton>
-              <ExpandMoreOutlined />
-            </IconButton>
-          }
-        >
-          <Typography fontSize={18}>
-            Database Matches With Ambiguous Roster Results (
-            {possibleRosterMatches.length})
-          </Typography>
-        </AccordionSummary>
-
-        <AccordionDetails>
-          {possibleRosterMatches.map((match) => (
-            <>
-              <p>
-                Match from the Devices Database for{" "}
-                {match.device.formattedPhone}
-              </p>
-              <div style={{ overflow: "auto", maxWidth: "100%" }}>
-                <table
-                  border={1}
-                  style={{ maxWidth: "100%", overflow: "auto" }}
-                >
-                  <thead>
-                    <tr>
-                      {Object.keys(match.device).map((key) => (
-                        <th key={key}>{key}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      {Object.keys(match.device).map((key) => (
-                        <td key={key} style={{ padding: "0 10px" }}>
-                          {(match.device as any)?.[key]}
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <p>Exact Matches</p>
-              <div style={{ overflow: "auto", maxWidth: "100%" }}>
-                {match.roster.exact.length ? (
-                  <table border={1}>
+          <AccordionDetails>
+            {possibleRosterMatches.map((match) => (
+              <>
+                <p>
+                  Match from the Devices Database for{" "}
+                  {match.device.formattedPhone}
+                </p>
+                <div style={{ overflow: "auto", maxWidth: "100%" }}>
+                  <table
+                    border={1}
+                    style={{ maxWidth: "100%", overflow: "auto" }}
+                  >
                     <thead>
                       <tr>
-                        {Object.keys(match.roster.exact[0]).map((key) => (
+                        {Object.keys(match.device).map((key) => (
                           <th key={key}>{key}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {match.roster.exact.map((item) => (
-                        <tr>
-                          {Object.keys(item).map((key) => (
-                            <td key={key}>{(item as any)?.[key]}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p style={{ color: "grey" }}>
-                    There were no exact matches from the roster
-                  </p>
-                )}
-              </div>
-              <p>Fuzzy Matches</p>
-              <div style={{ overflow: "auto", maxWidth: "100%" }}>
-                {match.roster.fuzzy.length ? (
-                  <table border={1}>
-                    <thead>
                       <tr>
-                        {Object.keys(match.roster.fuzzy[0]).map((key) => (
-                          <th key={key}>{key}</th>
+                        {Object.keys(match.device).map((key) => (
+                          <td key={key} style={{ padding: "0 10px" }}>
+                            {(match.device as any)?.[key]}
+                          </td>
                         ))}
                       </tr>
-                    </thead>
-                    <tbody>
-                      {match.roster.fuzzy.map((item) => (
-                        <tr>
-                          {Object.keys(item).map((key) => (
-                            <td key={key}>{(item as any)?.[key]}</td>
-                          ))}
-                        </tr>
-                      ))}
                     </tbody>
                   </table>
-                ) : (
-                  <p style={{ color: "grey" }}>
-                    There were no fuzzy matches from the roster
-                  </p>
-                )}
-              </div>
+                </div>
 
-              <br />
-            </>
-          ))}
-        </AccordionDetails>
-      </Accordion>
+                <p>Exact Matches</p>
+                <div style={{ overflow: "auto", maxWidth: "100%" }}>
+                  {match.roster.exact.length ? (
+                    <table border={1}>
+                      <thead>
+                        <tr>
+                          {Object.keys(match.roster.exact[0]).map((key) => (
+                            <th key={key}>{key}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {match.roster.exact.map((item) => (
+                          <tr>
+                            {Object.keys(item).map((key) => (
+                              <td key={key}>{(item as any)?.[key]}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p style={{ color: "grey" }}>
+                      There were no exact matches from the roster
+                    </p>
+                  )}
+                </div>
+                <p>Fuzzy Matches</p>
+                <div style={{ overflow: "auto", maxWidth: "100%" }}>
+                  {match.roster.fuzzy.length ? (
+                    <table border={1}>
+                      <thead>
+                        <tr>
+                          {Object.keys(match.roster.fuzzy[0]).map((key) => (
+                            <th key={key}>{key}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {match.roster.fuzzy.map((item) => (
+                          <tr>
+                            {Object.keys(item).map((key) => (
+                              <td key={key}>{(item as any)?.[key]}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p style={{ color: "grey" }}>
+                      There were no fuzzy matches from the roster
+                    </p>
+                  )}
+                </div>
 
-      <Accordion>
-        <AccordionSummary
-          expandIcon={
-            <IconButton>
-              <ExpandMoreOutlined />
-            </IconButton>
-          }
-        >
-          <Typography fontSize={18}>
-            Phone Numbers Without Database Matches (
-            {results.numbersWithoutDirectMatches.length})
-          </Typography>
-        </AccordionSummary>
+                <br />
+              </>
+            ))}
+          </AccordionDetails>
+        </Accordion>
+      )}
 
-        <AccordionDetails>
-          <p>
-            The following numbers did not match to any row in the RRM Devices
-            Database Table
-          </p>
+      {!!results.numbersWithoutDirectMatches.length && (
+        <Accordion>
+          <AccordionSummary
+            expandIcon={
+              <IconButton>
+                <ExpandMoreOutlined />
+              </IconButton>
+            }
+          >
+            <Typography fontSize={18}>
+              Phone Numbers Without Database Matches (
+              {results.numbersWithoutDirectMatches.length})
+            </Typography>
+          </AccordionSummary>
 
-          <p>Invalid Numbers:</p>
-          <ul>
-            {results.numbersWithoutDirectMatches
-              .filter((n) => n.length !== 10)
-              .map((num) => (
-                <li>{num}</li>
-              ))}
-          </ul>
+          <AccordionDetails>
+            <p>
+              The following numbers did not match to any row in the RRM Devices
+              Database Table
+            </p>
 
-          <p>Possibly Valid Numbers:</p>
-          <ul>
-            {results.numbersWithoutDirectMatches
-              .filter((n) => n.length === 10)
-              .map((num) => (
-                // Format the number to look like a phone number
-                <li>{num.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}</li>
-              ))}
-          </ul>
-        </AccordionDetails>
-      </Accordion>
+            <p>Invalid Numbers:</p>
+            <ul>
+              {results.numbersWithoutDirectMatches
+                .filter((n) => n.length !== 10)
+                .map((num) => (
+                  <li>{num}</li>
+                ))}
+            </ul>
+
+            <p>Possibly Valid Numbers:</p>
+            <ul>
+              {results.numbersWithoutDirectMatches
+                .filter((n) => n.length === 10)
+                .map((num) => (
+                  // Format the number to look like a phone number
+                  <li>{num.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}</li>
+                ))}
+            </ul>
+          </AccordionDetails>
+        </Accordion>
+      )}
     </div>
   );
 }

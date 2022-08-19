@@ -27,7 +27,7 @@ export default function PhoneLookupInput() {
         onChange={(ev) => setValue(ev.target.value.replace(/[^0-9\n]/g, ""))}
         rows={10}
         fullWidth
-        label={"Enter numbers"}
+        label={"Enter numbers separated by newlines"}
       />
       <Button
         onClick={() => onLookup()}
