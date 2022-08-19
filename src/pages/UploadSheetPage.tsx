@@ -1,12 +1,18 @@
 import Button from "@mui/material/Button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SpreadsheetUploadButton from "../comps/sheets/SpreadsheetUploadButton";
 import FlexCenter from "../comps/ui/FlexCenter";
 
 export default function UploadSheetPage() {
   const [success, setSuccess] = useState(false);
 
-  const onComplete = () => setSuccess(true);
+  const navigate = useNavigate();
+
+  const onComplete = () => {
+    setSuccess(true);
+    setTimeout(navigate, "/", 2000);
+  };
 
   return (
     <div>
