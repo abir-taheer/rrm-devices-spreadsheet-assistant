@@ -40,6 +40,12 @@ export default function useLookupPhoneNumbers() {
         return { exact, fuzzy };
       });
 
+      const phoneNumberDeviceMatchIndexMap: { [key: string]: number } = {};
+
+      deviceMatches.forEach((match, index) => {
+        phoneNumberDeviceMatchIndexMap[match?.phone] = index;
+      });
+
       const deviceMatchesWithoutExactRosterMatches = deviceMatches.filter(
         (match, index) => !rosterMatches[index].exact.length
       );
@@ -54,11 +60,11 @@ export default function useLookupPhoneNumbers() {
           rosterMatches[index].fuzzy.length === 1
       );
 
-      const phoneNumberDeviceMatchIndexMap: { [key: string]: number } = {};
-
-      deviceMatches.forEach((match, index) => {
-        phoneNumberDeviceMatchIndexMap[match?.phone] = index;
-      });
+      const noConfidenceDeviceAndRosterMatches = deviceMatches.filter(
+        (match, index) =>
+          rosterMatches[index].exact.length !== 1 ||
+          rosterMatches[index].fuzzy.length !== 1
+      );
 
       const workUnits = Array.from(
         new Set(
@@ -94,11 +100,21 @@ export default function useLookupPhoneNumbers() {
         };
       });
 
+      const noConfidenceMatchesWithGuesses =
+        noConfidenceDeviceAndRosterMatches.map((match, index) => ({
+          device: match,
+          roster: rosterMatches[phoneNumberDeviceMatchIndexMap[match.phone]],
+        }));
+
       return {
         numbersWithoutDirectMatches,
         deviceMatchesWithoutExactRosterMatches,
         deviceMatchesWithoutFuzzyRosterMatches,
+        noConfidenceDeviceAndRosterMatches,
+
         confidentMatchesGroupedByWorkUnit,
+        noConfidenceMatchesWithGuesses,
+
         rosterMatches,
       };
     },

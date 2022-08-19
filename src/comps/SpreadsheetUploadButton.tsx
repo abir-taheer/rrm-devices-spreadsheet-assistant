@@ -19,7 +19,11 @@ const accept = spreadsheetMimeTypes.reduce(
 
 const maxSize = 20 * 1024 * 1024; // 20MB
 
-export default function SpreadsheetUploadButton() {
+export default function SpreadsheetUploadButton({
+  onComplete,
+}: {
+  onComplete?: () => void;
+}) {
   const onFileReaderLoad = useOnSpreadsheetLoad();
   const { getRootProps, getInputProps, open } = useDropzone({
     accept,
@@ -33,7 +37,12 @@ export default function SpreadsheetUploadButton() {
       const [file] = accepted;
       const reader = new FileReader();
       reader.readAsArrayBuffer(file);
-      reader.onload = (ev) => onFileReaderLoad(ev.target?.result);
+      reader.onload = (ev) => {
+        onFileReaderLoad(ev.target?.result);
+        if (onComplete) {
+          onComplete();
+        }
+      };
     },
     multiple: false,
   });
@@ -42,7 +51,9 @@ export default function SpreadsheetUploadButton() {
       <div {...getRootProps()} style={{ display: "none" }}>
         <input {...getInputProps()} />
       </div>
-      <Button onClick={() => open()}>Upload</Button>
+      <Button onClick={() => open()} variant="outlined">
+        Upload
+      </Button>
     </>
   );
 }
