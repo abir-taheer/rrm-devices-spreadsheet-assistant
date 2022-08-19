@@ -47,7 +47,7 @@ export default function TabNavigation() {
       <Tabs
         value={location.pathname}
         onChange={(ev, val) => navigate(val)}
-        scrollButtons="auto"
+        centered
       >
         {tabs.map((tab) => (
           <Tab
