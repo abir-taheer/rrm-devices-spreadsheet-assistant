@@ -16,14 +16,7 @@ export default function HomePage() {
         use for the bulk phone number search. You can just paste a list of phone
         numbers and hit the search button and it'll do the rest while also
         letting you know which ones were not found in the spreadsheets or if
-        there were missing/duplicate results. The{" "}
-        <b style={{ color: "green" }}>"Search Everywhere"</b> page will search
-        through the Database Sheet and the Roster sheet for whatever you type
-        into the search box and also tell you which row the results appear in
-        the spreadsheets. The{" "}
-        <b style={{ color: "green" }}>"Analyze Spreadsheet"</b> will let you
-        know if there are any duplicates or possible typos in the roster and rrm
-        database sheets
+        there were missing/duplicate results.
       </p>
       <h4>What do you need to do?</h4>
 

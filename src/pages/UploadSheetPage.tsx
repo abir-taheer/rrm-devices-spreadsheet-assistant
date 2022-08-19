@@ -1,6 +1,6 @@
 import Button from "@mui/material/Button";
 import { useState } from "react";
-import SpreadsheetUploadButton from "../comps/SpreadsheetUploadButton";
+import SpreadsheetUploadButton from "../comps/sheets/SpreadsheetUploadButton";
 import FlexCenter from "../comps/ui/FlexCenter";
 
 export default function UploadSheetPage() {

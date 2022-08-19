@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { useAtomValue } from "jotai";
-import SpreadsheetUploadButton from "./comps/SpreadsheetUploadButton";
+import SpreadsheetUploadButton from "./comps/sheets/SpreadsheetUploadButton";
 import SheetLastUploadedAtom from "./atoms/SheetLastUploadedAtom";
-import LookupInput from "./comps/LookupInput";
+import LookupInput from "./comps/phone-lookup/PhoneLookupInput";
 import RouteDefinitions from "./pages/_routes";
 import TabNavigation from "./comps/navigation/TabNavigation";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,7 @@ function App() {
   }, [lastUploaded]);
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="xl">
       <h1 style={{ textAlign: "center" }}>RRM Device Spreadsheet Assistant</h1>
 
       <p style={{ textAlign: "center" }}>

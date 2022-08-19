@@ -30,7 +30,15 @@ export type RosterItem = {
 };
 
 export function convertRawRosterTable(table: StringObject[]): RosterItem[] {
-  const columns = Object.keys(table[0]) as NonEmptyArray<string>;
+  const columnsSet = new Set<string>();
+
+  table.forEach((row) => {
+    Object.keys(row).forEach((key) => {
+      columnsSet.add(key.toString());
+    });
+  });
+
+  const columns = Array.from(columnsSet).filter(Boolean);
 
   const columnNames = {
     workLocation: getClosestMatch(columns, "Work Location"),
@@ -55,8 +63,6 @@ export function convertRawRosterTable(table: StringObject[]): RosterItem[] {
     supervisor: getClosestMatch(columns, "Supervisor"),
   };
 
-  const rosterItemPartialKeys = Object.keys(columnNames);
-
   // We're getting the closest match instead  of using exact values because the spreadsheet is subject to change
   // This helps ensure the app still works even if the headers change slightly
   return table.map((row, i) => {
@@ -66,7 +72,7 @@ export function convertRawRosterTable(table: StringObject[]): RosterItem[] {
     const fullName = [firstName, lastName].filter(Boolean).join(" ");
 
     return {
-      row: i + 1,
+      row: i + 2,
       workLocation: row[columnNames.workLocation],
       pms: row[columnNames.pms],
       lastName,

@@ -21,16 +21,16 @@ const tabs = [
     icon: <LocalPhoneOutlined />,
     path: "/phone-lookup",
   },
-  {
-    label: "Search Everywhere",
-    icon: <SearchOutlined />,
-    path: "/search-everywhere",
-  },
-  {
-    label: "Analyze Spreadsheet",
-    icon: <AutoGraphOutlined />,
-    path: "/analyze-spreadsheet",
-  },
+  //   {
+  //     label: "Search Everywhere",
+  //     icon: <SearchOutlined />,
+  //     path: "/search-everywhere",
+  //   },
+  //   {
+  //     label: "Analyze Spreadsheet",
+  //     icon: <AutoGraphOutlined />,
+  //     path: "/analyze-spreadsheet",
+  //   },
   {
     label: "Upload New Spreadsheet",
     icon: <FileUploadOutlined />,

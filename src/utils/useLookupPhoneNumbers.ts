@@ -35,7 +35,7 @@ export default function useLookupPhoneNumbers() {
           ["firstName", "lastName"],
           match.fullName,
           1
-        );
+        ).filter((item) => !exact.some((i) => i.row === item.row));
 
         return { exact, fuzzy };
       });
@@ -57,13 +57,13 @@ export default function useLookupPhoneNumbers() {
       const confidentDeviceAndRosterMatches = deviceMatches.filter(
         (match, index) =>
           rosterMatches[index].exact.length === 1 &&
-          rosterMatches[index].fuzzy.length === 1
+          rosterMatches[index].fuzzy.length === 0
       );
 
       const noConfidenceDeviceAndRosterMatches = deviceMatches.filter(
         (match, index) =>
           rosterMatches[index].exact.length !== 1 ||
-          rosterMatches[index].fuzzy.length !== 1
+          rosterMatches[index].fuzzy.length !== 0
       );
 
       const workUnits = Array.from(
@@ -75,17 +75,35 @@ export default function useLookupPhoneNumbers() {
       ) as string[];
 
       const confidentDeviceIndexWorkUnitMap: { [key: string]: number[] } = {};
+      const confidentDeviceIndexWorkLocationMap: { [key: string]: number[] } =
+        {};
+
+      const confidentDeviceIndexSupervisorMap: { [key: string]: number[] } = {};
 
       confidentDeviceAndRosterMatches.forEach((match, index) => {
         const unit = match.unit || "Unknown Work Unit";
 
+        const matchesIndex = phoneNumberDeviceMatchIndexMap[match.phone];
         if (!confidentDeviceIndexWorkUnitMap[unit]) {
           confidentDeviceIndexWorkUnitMap[unit] = [];
         }
 
-        confidentDeviceIndexWorkUnitMap[unit].push(
-          phoneNumberDeviceMatchIndexMap[match.phone]
-        );
+        confidentDeviceIndexWorkUnitMap[unit].push(matchesIndex);
+
+        const rosterItem = rosterMatches[matchesIndex].exact[0];
+        const location = rosterItem?.workLocation || "Unknown Work Location";
+        if (!confidentDeviceIndexWorkLocationMap[location]) {
+          confidentDeviceIndexWorkLocationMap[location] = [];
+        }
+
+        confidentDeviceIndexWorkLocationMap[location].push(matchesIndex);
+        const supervisor = rosterItem?.supervisor || "Unknown Supervisor";
+
+        if (!confidentDeviceIndexSupervisorMap[supervisor]) {
+          confidentDeviceIndexSupervisorMap[supervisor] = [];
+        }
+
+        confidentDeviceIndexSupervisorMap[supervisor].push(matchesIndex);
       });
 
       const confidentMatchesGroupedByWorkUnit = workUnits.map((workUnit) => {
@@ -100,11 +118,59 @@ export default function useLookupPhoneNumbers() {
         };
       });
 
+      const workLocations = Array.from(
+        new Set(
+          confidentDeviceAndRosterMatches.map(
+            (match) =>
+              rosterMatches[phoneNumberDeviceMatchIndexMap[match.phone]]
+                .exact[0].workLocation
+          )
+        )
+      );
+
+      const confidentMatchesGroupedByWorkLocation = workLocations.map(
+        (workLocation) => {
+          return {
+            workLocation,
+            matches: confidentDeviceIndexWorkLocationMap[
+              workLocation || "Unknown Work Location"
+            ].map((index) => {
+              return {
+                device: deviceMatches[index],
+                roster: rosterMatches[index],
+              };
+            }),
+          };
+        }
+      );
+      const confidentMatchesGroupedBySupervisor = Object.keys(
+        confidentDeviceIndexSupervisorMap
+      ).map((supervisor) => {
+        return {
+          supervisor,
+          matches: confidentDeviceIndexSupervisorMap[supervisor].map(
+            (index) => {
+              return {
+                device: deviceMatches[index],
+                roster: rosterMatches[index],
+              };
+            }
+          ),
+        };
+      });
+
       const noConfidenceMatchesWithGuesses =
         noConfidenceDeviceAndRosterMatches.map((match, index) => ({
           device: match,
           roster: rosterMatches[phoneNumberDeviceMatchIndexMap[match.phone]],
         }));
+
+      noConfidenceMatchesWithGuesses.sort(
+        (a, b) =>
+          a.device?.unit?.localeCompare(b.device?.unit || "") ||
+          b.roster.exact.length - a.roster.exact.length ||
+          b.roster.fuzzy.length - a.roster.fuzzy.length
+      );
 
       return {
         numbersWithoutDirectMatches,
@@ -113,6 +179,8 @@ export default function useLookupPhoneNumbers() {
         noConfidenceDeviceAndRosterMatches,
 
         confidentMatchesGroupedByWorkUnit,
+        confidentMatchesGroupedByWorkLocation,
+        confidentMatchesGroupedBySupervisor,
         noConfidenceMatchesWithGuesses,
 
         rosterMatches,

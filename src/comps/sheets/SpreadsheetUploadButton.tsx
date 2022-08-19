@@ -1,6 +1,6 @@
 import { useDropzone } from "react-dropzone";
 import Button from "@mui/material/Button";
-import useOnSpreadsheetLoad from "../utils/useOnSpreadsheetLoad";
+import useOnSpreadsheetLoad from "../../utils/useOnSpreadsheetLoad";
 
 const spreadsheetMimeTypes = [
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

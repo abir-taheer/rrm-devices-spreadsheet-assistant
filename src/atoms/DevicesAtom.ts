@@ -18,7 +18,15 @@ export type DeviceItem = {
 };
 
 export function convertRawDevicesTable(table: StringObject[]): DeviceItem[] {
-  const columns = Object.keys(table[0]);
+  const columnsSet = new Set<string>();
+
+  table.forEach((row) => {
+    Object.keys(row).forEach((key) => {
+      columnsSet.add(key.toString());
+    });
+  });
+
+  const columns = Array.from(columnsSet).filter(Boolean);
 
   const columnKeyMap = {
     phone: getClosestMatch(columns, [
@@ -41,7 +49,7 @@ export function convertRawDevicesTable(table: StringObject[]): DeviceItem[] {
     const formattedPhone = phone.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3");
 
     return {
-      row: i + 1,
+      row: i + 2,
       phone,
       formattedPhone,
       phoneNumber,
