@@ -11,7 +11,7 @@ export default function UploadSheetPage() {
 
   const onComplete = () => {
     setSuccess(true);
-    setTimeout(navigate, "/", 2000);
+    setTimeout(() => navigate("/"), 2000);
   };
 
   return (
