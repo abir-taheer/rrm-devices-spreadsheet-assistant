@@ -13,13 +13,14 @@ export default function searchObjects<Obj>(
   return items.filter((item) =>
     words.every((word) =>
       fieldsToSearch.some((field) => {
+        const rawFieldValue = item[field] || "";
+        const fieldVal = (rawFieldValue as string).toString().toLowerCase();
+
         if (!tolerence) {
-          item[field]?.toString()?.toLowerCase().includes(word);
+          fieldVal.includes(word);
         }
 
-        const str = item[field]?.toString()?.toLowerCase() || "";
-
-        return levenshtein(str, word) <= tolerence;
+        return levenshtein(fieldVal, word) <= tolerence;
       })
     )
   );
