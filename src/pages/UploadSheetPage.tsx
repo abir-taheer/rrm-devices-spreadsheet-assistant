@@ -37,7 +37,8 @@ export default function UploadSheetPage() {
           color="error"
           onClick={() => {
             localStorage.clear();
-            window.location.href = "/";
+            navigate("/");
+            setTimeout(() => window.location.reload(), 1000);
           }}
         >
           Reset App State

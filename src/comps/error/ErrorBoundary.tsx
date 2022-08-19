@@ -61,7 +61,8 @@ export default class ErrorBoundary extends Component<Props, State> {
                       color="error"
                       onClick={() => {
                         localStorage.clear();
-                        window.location.href = "/";
+                        window.location.hash = "/";
+                        setTimeout(() => window.location.reload(), 1000);
                       }}
                     >
                       Reset App State
